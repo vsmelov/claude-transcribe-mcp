@@ -1,4 +1,4 @@
-# transcribe-mcp
+# claude-transcribe-mcp
 
 MCP-сервер для транскрибации локальных аудиофайлов через OpenAI STT.
 Написан Claude Code для собственного использования.
@@ -36,16 +36,33 @@ ffmpeg'ом (stream copy, без перекодирования) на куски
 Известное ограничение: при диаризации сегмент, попавший ровно на границу куска,
 может дать небольшой дубль текста.
 
-## Установка
+## Быстрый старт
 
 ```
+git clone https://github.com/vsmelov/claude-transcribe-mcp.git
+cd claude-transcribe-mcp
 python -m venv .venv
 .venv\Scripts\pip install -r requirements.txt
+
+.venv\Scripts\python setup.py                    # проверить окружение
+.venv\Scripts\python setup.py --download-model   # + модель для базы голосов (~27 МБ)
 ```
 
-Ключ — в `.env` рядом с `server.py` (`OPENAI_API_KEY=...`). Требуется ffmpeg в PATH.
+Запускай `setup.py` тем же интерпретатором, которым будет работать сервер (из
+`.venv`) — он печатает команду подключения именно с этим путём.
 
-Регистрация в Claude Code — в `~/.claude.json` → `mcpServers`:
+Что нужно помимо кода:
+
+- **`OPENAI_API_KEY` в `.env`** — шаблон в `.env.example`, ключ на
+  [platform.openai.com](https://platform.openai.com/api-keys). `setup.py` создаст
+  `.env` из шаблона, если его нет.
+- **ffmpeg в PATH** — обязателен: им режутся длинные файлы на куски.
+- **`models/campplus_zh_en_advanced.onnx`** (~27 МБ) — нужен только для базы
+  голосов и авто-опознания спикеров. Транскрибация работает и без него; ставится
+  флагом `--download-model` выше или вручную (ссылка ниже, в разделе про базу голосов).
+
+Готовую команду `claude mcp add` печатает `setup.py`. Вручную — в `~/.claude.json`
+→ `mcpServers`:
 
 ```json
 "transcribe": {
@@ -76,3 +93,7 @@ python -m venv .venv
   (`3dspeaker_speech_campplus_sv_zh_en_16k-common_advanced.onnx`).
 - Лимит OpenAI API — 4 known_speakers на запрос; большая база живёт локально и
   используется для выбора нужной четвёрки под конкретную запись.
+
+## Лицензия
+
+MIT — см. [LICENSE](LICENSE).
